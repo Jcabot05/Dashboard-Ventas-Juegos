@@ -1,0 +1,179 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.dash{background:var(--color-background-tertiary);padding:16px;border-radius:var(--border-radius-lg)}
+.nav{background:#1F4E79;border-radius:var(--border-radius-md);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.nav-title{color:#fff;font-size:15px;font-weight:500}
+.nav-filters{display:flex;gap:8px}
+.filter-pill{background:rgba(255,255,255,0.15);color:#E8F4FD;font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid rgba(255,255,255,0.3)}
+.filter-pill.active{background:rgba(255,255,255,0.3)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:500;color:#1F4E79}
+.kpi-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.kpi-badge{display:inline-block;background:#EBF3FB;color:#1F4E79;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.charts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.chart-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.chart-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.bar-label{font-size:10px;color:var(--color-text-secondary);width:52px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;background:var(--color-background-secondary);border-radius:3px;height:14px;overflow:hidden}
+.bar-fill{height:14px;border-radius:3px;background:#2E75B6}
+.bar-num{font-size:10px;color:var(--color-text-secondary);width:30px;flex-shrink:0}
+.hist-row{display:flex;align-items:flex-end;gap:3px;height:70px;padding-bottom:0}
+.hist-bar{flex:1;background:#2E75B6;border-radius:2px 2px 0 0;opacity:0.85}
+.hist-labels{display:flex;justify-content:space-between;margin-top:4px}
+.hist-lbl{font-size:9px;color:var(--color-text-secondary)}
+.pie-area{display:flex;align-items:center;gap:10px;margin-top:4px}
+.pie-legend{flex:1}
+.pie-item{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.pie-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.pie-text{font-size:10px;color:var(--color-text-secondary)}
+.pie-pct{font-size:10px;font-weight:500;color:var(--color-text-primary);margin-left:auto}
+.bottom{display:grid;grid-template-columns:1.7fr 1fr;gap:10px}
+.table-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.tbl-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:500;color:var(--color-text-secondary);text-align:left;padding:4px 6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{font-size:11px;color:var(--color-text-primary);padding:5px 6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+tr:last-child td{border-bottom:none}
+.rank-num{color:var(--color-text-secondary);font-weight:500}
+.sales-chip{background:#EBF3FB;color:#1F4E79;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.pub-row{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.pub-name{font-size:11px;color:var(--color-text-primary);width:80px;flex-shrink:0}
+.pub-track{flex:1;background:var(--color-background-secondary);border-radius:3px;height:12px;overflow:hidden}
+.pub-fill{height:12px;border-radius:3px;background:#1F4E79}
+.pub-val{font-size:10px;color:var(--color-text-secondary);width:32px;flex-shrink:0;text-align:right}
+.footer{text-align:center;margin-top:10px;font-size:10px;color:var(--color-text-secondary)}
+</style>
+
+<div class="dash">
+  <h2 class="sr-only" style="position:absolute;left:-9999px">Mockup del dashboard de ventas de videojuegos</h2>
+
+  <!-- NAV -->
+  <div class="nav">
+    <span class="nav-title"><i class="ti ti-device-gamepad-2" aria-hidden="true" style="font-size:16px;vertical-align:-2px;margin-right:6px"></i>Video Game Sales Dashboard</span>
+    <div class="nav-filters">
+      <span class="filter-pill active">Género <i class="ti ti-chevron-down" style="font-size:10px"></i></span>
+      <span class="filter-pill">Plataforma <i class="ti ti-chevron-down" style="font-size:10px"></i></span>
+      <span class="filter-pill">Región <i class="ti ti-chevron-down" style="font-size:10px"></i></span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Total ventas globales</div>
+      <div class="kpi-val">8,920M</div>
+      <div class="kpi-sub">unidades acumuladas</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Promedio por juego</div>
+      <div class="kpi-val">0.14M</div>
+      <div class="kpi-sub">ventas promedio</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total de juegos</div>
+      <div class="kpi-val">64,016</div>
+      <div class="kpi-sub">registros en el dataset</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Género líder</div>
+      <div class="kpi-val" style="font-size:16px;padding-top:4px"><span class="kpi-badge">Action</span></div>
+      <div class="kpi-sub">mayor volumen de ventas</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts">
+    <!-- Histograma -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="ti ti-chart-histogram" aria-hidden="true" style="font-size:13px;margin-right:4px;vertical-align:-1px"></i>Distribución de ventas (total_sales)</div>
+      <div class="hist-row">
+        <div class="hist-bar" style="height:55%"></div>
+        <div class="hist-bar" style="height:90%"></div>
+        <div class="hist-bar" style="height:72%"></div>
+        <div class="hist-bar" style="height:45%"></div>
+        <div class="hist-bar" style="height:28%"></div>
+        <div class="hist-bar" style="height:18%"></div>
+        <div class="hist-bar" style="height:10%"></div>
+        <div class="hist-bar" style="height:6%"></div>
+      </div>
+      <div class="hist-labels">
+        <span class="hist-lbl">0</span>
+        <span class="hist-lbl">0.5</span>
+        <span class="hist-lbl">1</span>
+        <span class="hist-lbl">2</span>
+        <span class="hist-lbl">5+</span>
+      </div>
+      <div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">Ventas en millones</div>
+    </div>
+
+    <!-- Barras por género -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="ti ti-chart-bar" aria-hidden="true" style="font-size:13px;margin-right:4px;vertical-align:-1px"></i>Ventas promedio por género</div>
+      <div class="bar-row"><span class="bar-label">Action</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-num">0.26M</span></div>
+      <div class="bar-row"><span class="bar-label">Sports</span><div class="bar-track"><div class="bar-fill" style="width:84%"></div></div><span class="bar-num">0.22M</span></div>
+      <div class="bar-row"><span class="bar-label">Shooter</span><div class="bar-track"><div class="bar-fill" style="width:73%"></div></div><span class="bar-num">0.19M</span></div>
+      <div class="bar-row"><span class="bar-label">RPG</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div><span class="bar-num">0.16M</span></div>
+      <div class="bar-row"><span class="bar-label">Racing</span><div class="bar-track"><div class="bar-fill" style="width:48%"></div></div><span class="bar-num">0.13M</span></div>
+      <div class="bar-row"><span class="bar-label">Platform</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div><span class="bar-num">0.10M</span></div>
+    </div>
+
+    <!-- Ventas por región (pie simulado con leyenda) -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="ti ti-world" aria-hidden="true" style="font-size:13px;margin-right:4px;vertical-align:-1px"></i>Ventas por región</div>
+      <div class="pie-area">
+        <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#2E75B6" stroke-width="18" stroke-dasharray="88 100" stroke-dashoffset="0"/>
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#5BA3D9" stroke-width="18" stroke-dasharray="58 100" stroke-dashoffset="-88"/>
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#EBF3FB" stroke-width="18" stroke-dasharray="24 100" stroke-dashoffset="-146"/>
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#B5D4F4" stroke-width="18" stroke-dasharray="30 100" stroke-dashoffset="-170"/>
+        </svg>
+        <div class="pie-legend">
+          <div class="pie-item"><span class="pie-dot" style="background:#2E75B6"></span><span class="pie-text">NA</span><span class="pie-pct">44%</span></div>
+          <div class="pie-item"><span class="pie-dot" style="background:#5BA3D9"></span><span class="pie-text">PAL</span><span class="pie-pct">29%</span></div>
+          <div class="pie-item"><span class="pie-dot" style="background:#B5D4F4"></span><span class="pie-text">Other</span><span class="pie-pct">15%</span></div>
+          <div class="pie-item"><span class="pie-dot" style="background:#EBF3FB"></span><span class="pie-text">JP</span><span class="pie-pct">12%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: tabla + ranking publishers -->
+  <div class="bottom">
+    <div class="table-card">
+      <div class="tbl-title"><i class="ti ti-trophy" aria-hidden="true" style="font-size:13px;margin-right:4px;vertical-align:-1px"></i>Top 10 juegos por ventas globales</div>
+      <table>
+        <thead><tr><th>#</th><th>Juego</th><th>Plataforma</th><th>Género</th><th>Ventas</th></tr></thead>
+        <tbody>
+          <tr><td class="rank-num">1</td><td>Wii Sports</td><td>Wii</td><td>Sports</td><td><span class="sales-chip">82.7M</span></td></tr>
+          <tr><td class="rank-num">2</td><td>GTA V</td><td>Multi</td><td>Action</td><td><span class="sales-chip">55.9M</span></td></tr>
+          <tr><td class="rank-num">3</td><td>Super Mario Bros.</td><td>NES</td><td>Platform</td><td><span class="sales-chip">45.3M</span></td></tr>
+          <tr><td class="rank-num">4</td><td>Tetris</td><td>GB</td><td>Puzzle</td><td><span class="sales-chip">35.8M</span></td></tr>
+          <tr><td class="rank-num">5</td><td>Mario Kart 8 Deluxe</td><td>Switch</td><td>Racing</td><td><span class="sales-chip">32.1M</span></td></tr>
+          <tr><td class="rank-num">6</td><td>Pokémon R/B/Y</td><td>GB</td><td>RPG</td><td><span class="sales-chip">31.4M</span></td></tr>
+          <tr><td class="rank-num">7</td><td>FIFA 22</td><td>Multi</td><td>Sports</td><td><span class="sales-chip">28.9M</span></td></tr>
+          <tr><td class="rank-num">8</td><td>Call of Duty: MW</td><td>Multi</td><td>Shooter</td><td><span class="sales-chip">26.5M</span></td></tr>
+          <tr><td class="rank-num">9</td><td>Red Dead Redemption 2</td><td>Multi</td><td>Action</td><td><span class="sales-chip">24.2M</span></td></tr>
+          <tr><td class="rank-num">10</td><td>Animal Crossing: NH</td><td>Switch</td><td>Simulation</td><td><span class="sales-chip">22.4M</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card">
+      <div class="tbl-title"><i class="ti ti-building" aria-hidden="true" style="font-size:13px;margin-right:4px;vertical-align:-1px"></i>Top publishers por ventas</div>
+      <div class="pub-row"><span class="pub-name">Nintendo</span><div class="pub-track"><div class="pub-fill" style="width:100%"></div></div><span class="pub-val">1,786M</span></div>
+      <div class="pub-row"><span class="pub-name">EA</span><div class="pub-track"><div class="pub-fill" style="width:72%"></div></div><span class="pub-val">1,110M</span></div>
+      <div class="pub-row"><span class="pub-name">Activision</span><div class="pub-track"><div class="pub-fill" style="width:65%"></div></div><span class="pub-val">975M</span></div>
+      <div class="pub-row"><span class="pub-name">Sony</span><div class="pub-track"><div class="pub-fill" style="width:52%"></div></div><span class="pub-val">607M</span></div>
+      <div class="pub-row"><span class="pub-name">Ubisoft</span><div class="pub-track"><div class="pub-fill" style="width:44%"></div></div><span class="pub-val">473M</span></div>
+      <div class="pub-row"><span class="pub-name">Take-Two</span><div class="pub-track"><div class="pub-fill" style="width:38%"></div></div><span class="pub-val">412M</span></div>
+      <div class="pub-row"><span class="pub-name">Konami</span><div class="pub-track"><div class="pub-fill" style="width:30%"></div></div><span class="pub-val">320M</span></div>
+    </div>
+  </div>
+
+  <div class="footer">Mockup — Proyecto 02 | Dataset: Video Game Sales 2024 (Kaggle) | React + Firebase</div>
+</div>
