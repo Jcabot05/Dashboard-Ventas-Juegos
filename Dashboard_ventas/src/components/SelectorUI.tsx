@@ -2,36 +2,33 @@ import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui
 import type { SelectChangeEvent } from '@mui/material';
 import { useState } from 'react';
 
-interface YearSelectorProps {
-  onYearSelect: (year: string) => void;
+// 1. Definimos la interfaz correcta para las Opciones/Filtros
+interface SelectorUIProps {
+  onOptionSelect: (option: string | null) => void;
 }
 
-function generateYears(startYear = 1977, endYear = 2020) {
-  const years: string[] = ['Todos'];
-  for (let y = endYear; y >= startYear; y--) {
-    years.push(`${y}`);
-  }
-  return years;
-}
+export default function SelectorUI({ onOptionSelect }: SelectorUIProps) {
+  const [option, setOption] = useState('Todos');
 
-export default function YearSelectorUI({ onYearSelect }: YearSelectorProps) {
-  const years = generateYears(1977, 2020);
-  const [year, setYear] = useState('Todos');
+  // Aquí pones las opciones que maneja tu dashboard (ajústalas si usas otras)
+  const options = ['Todos', 'Género', 'Plataforma', 'Región'];
 
   const handleChange = (e: SelectChangeEvent) => {
     const v = e.target.value;
-    setYear(v);
-    onYearSelect(v);
+    setOption(v);
+    
+    // Si elige 'Todos', pasamos null para limpiar el filtro; si no, pasamos el valor
+    onOptionSelect(v === 'Todos' ? null : v);
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Año</Typography>
+      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Filtro Principal</Typography>
       <FormControl fullWidth>
-        <InputLabel id="anio-label">Año</InputLabel>
-        <Select labelId="anio-label" value={year} label="Año" onChange={handleChange}>
-          {years.map((y) => (
-            <MenuItem key={y} value={y}>{y}</MenuItem>
+        <InputLabel id="selector-label">Filtrar por</InputLabel>
+        <Select labelId="selector-label" value={option} label="Filtrar por" onChange={handleChange}>
+          {options.map((opt) => (
+            <MenuItem key={opt} value={opt}>{opt}</MenuItem>
           ))}
         </Select>
       </FormControl>
