@@ -18,4 +18,6 @@ export interface DashboardData {
   generoLider: string;
   ventasPorGenero: { genero: string; ventas: number }[];
   ventasPorRegion: { region: string; ventas: number }[];
+  loading: boolean;
+  error: string | null;
 }

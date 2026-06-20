@@ -1,91 +1,144 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ref, get } from 'firebase/database';
 import { db } from '../firebase/firebaseConfig';
-import type { DashboardData, Juego } from '../types/DashboardTypes';
+import { type DashboardData, type Juego } from '../types/DashboardTypes';
 
-function calcularDashboard(juegos: Juego[]): DashboardData {
-  const totalVentas = juegos.reduce((s, j) => s + (j.total_sales ?? 0), 0);
-  const promedio = juegos.length > 0 ? totalVentas / juegos.length : 0;
+interface RawJuego {
+  title?: string | null;
+  console?: string | null;
+  genre?: string | null;
+  total_sales?: number | null;
+  na_sales?: number | null;
+  jp_sales?: number | null;
+  pal_sales?: number | null;
+  other_sales?: number | null;
+  release_date?: string | null;
+}
+
+type JuegoCrudo = Omit<Juego, 'rank'> & { anio: string | null };
+
+function tieneVentas(j: RawJuego): j is RawJuego & { total_sales: number } {
+  return j.total_sales != null;
+}
+
+function extraerAnio(releaseDate: string | null | undefined): string | null {
+  if (!releaseDate) return null;
+  const match = releaseDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) return null;
+  return match[3];
+}
+
+function mapearJuego(raw: RawJuego & { total_sales: number }): JuegoCrudo {
+  return {
+    titulo: raw.title ?? 'Sin título',
+    plataforma: raw.console ?? 'N/A',
+    genero: raw.genre ?? 'Sin género',
+    total_sales: raw.total_sales / 100,
+    na_sales: (raw.na_sales ?? 0) / 100,
+    jp_sales: (raw.jp_sales ?? 0) / 100,
+    pal_sales: (raw.pal_sales ?? 0) / 100,
+    other_sales: (raw.other_sales ?? 0) / 100,
+    anio: extraerAnio(raw.release_date),
+  };
+}
+
+function calcularDashboard(juegos: JuegoCrudo[]): Omit<DashboardData, 'loading' | 'error'> {
+  const ordenados = [...juegos].sort((a, b) => b.total_sales - a.total_sales);
+
+  const juegosConRank: Juego[] = ordenados.map((j, index) => ({
+    rank: index + 1,
+    titulo: j.titulo,
+    plataforma: j.plataforma,
+    genero: j.genero,
+    na_sales: j.na_sales,
+    jp_sales: j.jp_sales,
+    pal_sales: j.pal_sales,
+    other_sales: j.other_sales,
+    total_sales: j.total_sales,
+  }));
+
+  const totalVentas = juegosConRank.reduce((s, j) => s + j.total_sales, 0);
+  const promedio = juegosConRank.length > 0 ? totalVentas / juegosConRank.length : 0;
 
   const porGenero: Record<string, number> = {};
-  juegos.forEach((j) => {
-    if (j.genero) {
-      porGenero[j.genero] = (porGenero[j.genero] || 0) + j.total_sales;
-    }
+  juegosConRank.forEach((j) => {
+    porGenero[j.genero] = (porGenero[j.genero] || 0) + j.total_sales;
   });
 
   const ventasPorGenero = Object.entries(porGenero)
-    .map(([genero, ventas]) => ({ genero, ventas: Math.round(ventas * 10) / 10 }))
-    .sort((a, b) => b.ventas - a.ventas)
-    .slice(0, 6);
+    .map(([genero, ventas]) => ({ genero, ventas }))
+    .sort((a, b) => b.ventas - a.ventas);
 
   const generoLider = ventasPorGenero[0]?.genero ?? '-';
 
   const ventasPorRegion = [
-    { region: 'NA',    ventas: Math.round(juegos.reduce((s, j) => s + (j.na_sales ?? 0), 0) * 10) / 10 },
-    { region: 'PAL',   ventas: Math.round(juegos.reduce((s, j) => s + (j.pal_sales ?? 0), 0) * 10) / 10 },
-    { region: 'Other', ventas: Math.round(juegos.reduce((s, j) => s + (j.other_sales ?? 0), 0) * 10) / 10 },
-    { region: 'JP',    ventas: Math.round(juegos.reduce((s, j) => s + (j.jp_sales ?? 0), 0) * 10) / 10 },
+    { region: 'NA', ventas: juegosConRank.reduce((s, j) => s + j.na_sales, 0) },
+    { region: 'PAL', ventas: juegosConRank.reduce((s, j) => s + j.pal_sales, 0) },
+    { region: 'Other', ventas: juegosConRank.reduce((s, j) => s + j.other_sales, 0) },
+    { region: 'JP', ventas: juegosConRank.reduce((s, j) => s + j.jp_sales, 0) },
   ];
 
   return {
-    juegos,
+    juegos: juegosConRank,
     totalVentas: Math.round(totalVentas * 10) / 10,
     promedio: Math.round(promedio * 100) / 100,
-    totalJuegos: juegos.length,
+    totalJuegos: juegosConRank.length,
     generoLider,
     ventasPorGenero,
     ventasPorRegion,
   };
 }
 
-export default function useFetchData(selectedOption: string | null): DashboardData {
-  const [data, setData] = useState<DashboardData>({
-    juegos: [],
-    totalVentas: 0,
-    promedio: 0,
-    totalJuegos: 0,
-    generoLider: '-',
-    ventasPorGenero: [],
-    ventasPorRegion: [],
-  });
+export default function useFetchData(
+  selectedOption: string | null,
+  selectedYear: string | null
+): DashboardData {
+  const [todosLosJuegos, setTodosLosJuegos] = useState<JuegoCrudo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const dbRef = ref(db, 'data');
+    let cancelado = false;
 
-    get(dbRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const raw = snapshot.val();
-        console.debug('Firebase snapshot exists. Raw value:', raw);
+    async function cargarDatos() {
+      setLoading(true);
+      setError(null);
+      try {
+        const snapshot = await get(ref(db, '/'));
+        if (!snapshot.exists()) {
+          throw new Error('No se encontraron datos en la base de datos.');
+        }
+        const valor = snapshot.val();
+        const crudos: RawJuego[] = Array.isArray(valor) ? valor : Object.values(valor);
 
-        // Firebase devuelve un objeto con índices — lo convertimos a array
-        const juegosArray: Juego[] = Object.values(raw).map((item: any) => ({
-          rank:        item.rank ?? 0,
-          titulo:      item.title ?? item.titulo ?? '',
-          plataforma:  item.platform ?? item.plataforma ?? '',
-          genero:      item.genre ?? item.genero ?? '',
-          na_sales:    parseFloat(item.na_sales) || 0,
-          jp_sales:    parseFloat(item.jp_sales) || 0,
-          pal_sales:   parseFloat(item.pal_sales) || 0,
-          other_sales: parseFloat(item.other_sales) || 0,
-          total_sales: parseFloat(item.total_sales) || 0,
-        }));
+        const procesados = crudos.filter(tieneVentas).map(mapearJuego);
 
-        const filtrados =
-          selectedOption && selectedOption !== 'Todos'
-            ? juegosArray.filter((j) => j.genero === selectedOption)
-            : juegosArray;
-
-        console.debug('Mapped juegosArray length:', juegosArray.length, 'sample:', juegosArray[0]);
-        console.debug('After filter length:', filtrados.length);
-
-        setData(calcularDashboard(filtrados));
+        if (!cancelado) setTodosLosJuegos(procesados);
+      } catch (e) {
+        if (!cancelado) {
+          setError(e instanceof Error ? e.message : 'Error al cargar los datos.');
+        }
+      } finally {
+        if (!cancelado) setLoading(false);
       }
-    }).catch((error) => {
-      console.error('Error al obtener datos de Firebase:', error);
+    }
+
+    cargarDatos();
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  const dashboardFiltrado = useMemo(() => {
+    const filtrados = todosLosJuegos.filter((j) => {
+      const coincideGenero =
+        !selectedOption || selectedOption === 'Todos' || j.genero === selectedOption;
+      const coincideAnio =
+        !selectedYear || selectedYear === 'Todos' || j.anio === selectedYear;
+      return coincideGenero && coincideAnio;
     });
+    return calcularDashboard(filtrados);
+  }, [todosLosJuegos, selectedOption, selectedYear]);
 
-  }, [selectedOption]);
-
-  return data;
+  return { ...dashboardFiltrado, loading, error };
 }

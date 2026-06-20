@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Box, AppBar, Toolbar, Button, Grid } from '@mui/material';
-import HeaderUI from './components/HeaderUI';
+import { AppBar, Box, Button, Grid, Toolbar } from '@mui/material';
 import AlertUI from './components/AlertUI';
-import SelectorUI from './components/SelectorUI';
+import ChartUI from './components/ChartUI';
+import HeaderUI from './components/HeaderUI';
 import IndicadoresUI from './components/IndicadoresUI';
-import GraficoUI from './components/GraficoUI';
-import TablaUI from './components/TablaUI';
+import YearSelectorUI from './components/YearSelectorUI';
 import PublishersUI from './components/PublishersUI';
+import SelectorUI from './components/SelectorUI';
+import TableUI from './components/TableUI';
 import useFetchData from './hooks/useFetchData';
 
 function App() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const dataFetcherOutput = useFetchData(selectedOption);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const dataFetcherOutput = useFetchData(selectedOption, selectedYear);
 
   return (
     <Box>
@@ -19,10 +21,14 @@ function App() {
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <HeaderUI />
           <Box sx={{ display: 'flex', gap: 1 }}>
-            {['Género', 'Plataforma', 'Región'].map((f) => (
-              <Button key={f} size="small" variant="outlined"
-                sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
-                {f}
+            {['Género', 'Plataforma', 'Región'].map((filterLabel) => (
+              <Button
+                key={filterLabel}
+                size="small"
+                variant="outlined"
+                sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.4)', fontSize: 11 }}
+              >
+                {filterLabel}
               </Button>
             ))}
           </Box>
@@ -30,8 +36,24 @@ function App() {
       </AppBar>
 
       <Grid container spacing={2} sx={{ padding: 2 }}>
+        {dataFetcherOutput.error && (
+          <Grid size={{ xs: 12 }}>
+            <AlertUI
+              description={`Error al cargar los datos: ${dataFetcherOutput.error}`}
+              severity="error"
+            />
+          </Grid>
+        )}
 
-        {/* Alertas */}
+        {dataFetcherOutput.loading && (
+          <Grid size={{ xs: 12 }}>
+            <AlertUI
+              description="Cargando datos de ventas de videojuegos…"
+              severity="info"
+            />
+          </Grid>
+        )}
+
         <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <AlertUI
             description={`Género líder: ${dataFetcherOutput.generoLider}`}
@@ -40,31 +62,29 @@ function App() {
           />
         </Grid>
 
-        {/* Selector */}
         <Grid size={{ xs: 12, md: 3 }}>
           <SelectorUI onOptionSelect={setSelectedOption} />
         </Grid>
 
-        {/* Indicadores */}
+        <Grid size={{ xs: 12, md: 3 }}>
+          <YearSelectorUI onYearSelect={setSelectedYear} />
+        </Grid>
+
         <Grid container size={{ xs: 12, md: 9 }}>
           <IndicadoresUI data={dataFetcherOutput} />
         </Grid>
 
-        {/* Histograma */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: { xs: 'none', md: 'block' } }}>
-          <GraficoUI data={dataFetcherOutput.ventasPorGenero} />
+          <ChartUI data={dataFetcherOutput.ventasPorGenero} />
         </Grid>
 
-        {/* Barras por género */}
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: { xs: 'none', md: 'block' } }}>
-          <TablaUI data={dataFetcherOutput.juegos} />
+          <TableUI data={dataFetcherOutput.juegos} />
         </Grid>
 
-        {/* Pie región */}
         <Grid size={{ xs: 12 }} sx={{ display: { xs: 'none', md: 'block' } }}>
           <PublishersUI data={dataFetcherOutput.ventasPorRegion} />
         </Grid>
-
       </Grid>
     </Box>
   );
